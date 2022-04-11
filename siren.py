@@ -1,6 +1,13 @@
+from __future__ import print_function
 from faulthandler import disable
+import os
 import PySimpleGUI as sg
 from asteroid.models import BaseModel
+import numpy as np
+import librosa
+import soundfile as sf
+
+import librosa.display
 
 
 def check_none(resource, message='请输入路径！'):
@@ -28,6 +35,8 @@ user_data = {
     'out_path': ''
 }
 # Event Loop to process "events" and get the "values" of the inputs
+cycle = 0
+outpath=''
 while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
@@ -53,17 +62,49 @@ while True:
     elif event == '-RUN-':
         if check_none(user_data['model_path'], "请指定模型文件！") and check_none(user_data['audio_path'], "请指定音频文件！"):
             if user_data['out_path'] == '':
-                out_path = None
+                out_path = os.path.dirname(user_data['audio_path'])
             else:
                 out_path = user_data['out_path']
             button = window['-RUN-']
-            button.update(text="处理中……")
+            button.update(text="处理中(Stage 1/2)……")
             button.update(disabled=True)
+            cycle = 1
+    if cycle != 0:
+        if cycle == 1:
             model = BaseModel.from_pretrained(user_data['model_path'])
             model.separate(user_data['audio_path'],
-                           resample=True, output_dir=out_path)
+                        resample=True, output_dir=out_path)
+            button.update(text="处理中(Stage 2/2)……")
+            cycle = 2
+        if cycle == 2:
+            y, sr = librosa.load(user_data['audio_path'])
+            S_full, phase = librosa.magphase(librosa.stft(y))
+            S_filter = librosa.decompose.nn_filter(S_full,
+                                                aggregate=np.median,
+                                                metric='cosine',
+                                                width=int(librosa.time_to_frames(2, sr=sr)))
+            S_filter = np.minimum(S_full, S_filter)
+            margin_i, margin_v = 2, 10
+            power = 2
+
+            mask_i = librosa.util.softmask(S_filter,
+                                        margin_i * (S_full - S_filter),
+                                        power=power)
+
+            mask_v = librosa.util.softmask(S_full - S_filter,
+                                        margin_v * S_filter,
+                                        power=power)
+            S_foreground = mask_v * S_full
+            S_background = mask_i * S_full
+            D_foreground = S_foreground * phase
+            y_foreground = librosa.istft(D_foreground)
+            D_background = S_background * phase
+            y_background = librosa.istft(D_background)
+            sf.write(f"{out_path}/background.wav", y_background, sr, subtype='PCM_24')
+            sf.write(f"{out_path}/foreground.wav", y_foreground, sr, subtype='PCM_24')
             button.update(text="处理")
             button.update(disabled=False)
+            cycle = 0
 
 
 window.close()
