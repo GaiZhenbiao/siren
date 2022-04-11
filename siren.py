@@ -113,26 +113,25 @@ if not args.nogui:
                 user_data['out_path'] = out_path
             text.update(value=user_data['out_path'])
         elif event == '-RUN-':
-            if check_none(user_data['model_path'], "请指定模型文件！") and check_none(user_data['audio_path'], "请指定音频文件！"):
+            if check_none(user_data['model_path'], "请指定模型文件！") and check_none(user_data['audio_path'], "请指定音频文件！") and check_none(user_data['audio_path'], "请指定输出路径！"):
                 button = window['-RUN-']
                 button.update(text="处理中(Stage 1/2)……")
                 button.update(disabled=True)
-                cycle = 1
-        if cycle != 0:
-            if cycle == 1:
+                window.refresh()
                 seperate_vocal(
                     user_data['model_path'], user_data['audio_path'], user_data['out_path'])
                 button.update(text="处理中(Stage 2/2)……")
-                cycle = 2
-            if cycle == 2:
-                seperate_foreground_and_background(user_data['audio_path'], user_data['out_path'])
+                window.refresh()
+                seperate_foreground_and_background(
+                    user_data['audio_path'], user_data['out_path'])
                 button.update(text="处理")
+                window.refresh()
                 button.update(disabled=False)
-                cycle = 0
     window.close()
 else:
     print("Stage 1/2...")
-    seperate_vocal(user_data['model_path'], user_data['audio_path'], user_data['out_path'])
+    seperate_vocal(user_data['model_path'],
+                   user_data['audio_path'], user_data['out_path'])
     print("Stage 2/2...")
     seperate_foreground_and_background(user_data['audio_path'])
     print("done.")
