@@ -1,7 +1,5 @@
 from __future__ import print_function
-from faulthandler import disable
 import os
-import sys
 import PySimpleGUI as sg
 from asteroid.models import BaseModel
 import numpy as np
