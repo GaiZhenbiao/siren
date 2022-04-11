@@ -108,7 +108,7 @@ if not args.nogui:
                         value=user_data['out_path'])
         elif event == '-OUTPUT-':
             text = window['-OUTPUT_DISPLAY-']
-            out_path = sg.popup_get_folder('你想输出到那个文件夹？')
+            out_path = sg.popup_get_folder('你想输出到哪个文件夹？')
             if check_none(out_path):
                 user_data['out_path'] = out_path
             text.update(value=user_data['out_path'])
