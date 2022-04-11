@@ -82,7 +82,7 @@ if not args.nogui:
 
     # Create the Window
     window = sg.Window('Siren -高效、高质量的多人声音频分离', layout,
-                       resizable=True, finalize=True, icon="mermaid2.ico")
+                       resizable=True, finalize=True, icon="resources/images/mermaid.ico")
     window.TKroot.minsize(400, 160)
     # Event Loop to process "events" and get the "values" of the inputs
     cycle = 0
