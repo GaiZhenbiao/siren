@@ -77,8 +77,7 @@ if not args.nogui:
                sg.Button('选择音频', key='-INPUT-')],
               [sg.Text('请选择输出文件夹' if not user_data['out_path'] else user_data['out_path'], key='-OUTPUT_DISPLAY-'),
                sg.Button('选择输出文件夹', key='-OUTPUT-')],
-              [sg.Button('处理', key='-RUN-')]
-              ]
+              [sg.Button('处理', key='-RUN-')]]
 
     # Create the Window
     window = sg.Window('Siren -高效、高质量的多人声音频分离', layout,
@@ -115,12 +114,12 @@ if not args.nogui:
         elif event == '-RUN-':
             if check_none(user_data['model_path'], "请指定模型文件！") and check_none(user_data['audio_path'], "请指定音频文件！") and check_none(user_data['audio_path'], "请指定输出路径！"):
                 button = window['-RUN-']
-                button.update(text="处理中(Stage 1/2)……")
+                button.update(text="处理中(阶段 1/2)……")
                 button.update(disabled=True)
                 window.refresh()
                 seperate_vocal(
                     user_data['model_path'], user_data['audio_path'], user_data['out_path'])
-                button.update(text="处理中(Stage 2/2)……")
+                button.update(text="处理中(阶段 2/2)……")
                 window.refresh()
                 seperate_foreground_and_background(
                     user_data['audio_path'], user_data['out_path'])
@@ -129,9 +128,9 @@ if not args.nogui:
                 button.update(disabled=False)
     window.close()
 else:
-    print("Stage 1/2...")
+    print("阶段 1/2...")
     seperate_vocal(user_data['model_path'],
                    user_data['audio_path'], user_data['out_path'])
-    print("Stage 2/2...")
-    seperate_foreground_and_background(user_data['audio_path'])
+    print("阶段 2/2...")
+    seperate_foreground_and_background(user_data['audio_path'], user_data['out_path'])
     print("done.")
