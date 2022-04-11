@@ -16,11 +16,11 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Siren -高质量、高效的多人声音频分离软件。可以实现分离2个同时说话的人声，以及背景噪音。 ")
     parser.add_argument("--audio",
-                        help="输入本程序的音频文件路径")
+                        help="需要分离的音频文件的路径")
     parser.add_argument("--model",
                         help="模型文件路径")
-    parser.add_argument("--out", default=None, help="输出音频目录。默认输出到同目录")
-    parser.add_argument("--nogui",action='store_true',help="是否启用GUI")
+    parser.add_argument("--out", default=None, help="分离后音频存储路径。默认输出到同目录")
+    parser.add_argument("--nogui",action='store_true',help="设置后不使用图形界面")
     args = parser.parse_args()
     return args
 
