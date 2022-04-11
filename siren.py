@@ -60,9 +60,14 @@ def check_none(resource, message='请输入路径！'):
 
 args = parse_args()
 outpath=''
+user_data = {
+    'model_path': args.model if args.model else '',
+    'audio_path': args.audio if args.audio else '',
+    'out_path': args.out if args.out else ''
+}
 if not args.nogui:
-    layout = [[sg.Text('请选择模型', key='-MODEL_DISPLAY-'), sg.Button('选择模型文件', key='-MODEL-')],
-            [sg.Text('请选择待分离音频', key='-INPUT_DISPLAY-'),
+    layout = [[sg.Text('请选择模型' if not user_data['model_path'] else user_data['model_path'], key='-MODEL_DISPLAY-'), sg.Button('选择模型文件', key='-MODEL-')],
+              [sg.Text('请选择待分离音频' if not user_data['audio_path'] else user_data['audio_path'], key='-INPUT_DISPLAY-'),
             sg.Button('选择音频', key='-INPUT-')],
             [sg.Text('请选择输出文件夹', key='-OUTPUT_DISPLAY-'),
             sg.Button('选择输出文件夹', key='-OUTPUT-')],
@@ -73,11 +78,6 @@ if not args.nogui:
     window = sg.Window('Siren -高效、高质量的多人声音频分离', layout,
                     resizable=True, finalize=True, icon="mermaid2.ico")
     window.TKroot.minsize(400, 160)
-    user_data = {
-        'model_path': '',
-        'audio_path': '',
-        'out_path': ''
-    }
     # Event Loop to process "events" and get the "values" of the inputs
     cycle = 0
     while True:
@@ -126,14 +126,12 @@ if not args.nogui:
                 cycle = 0
     window.close()
 else:
-    if args.out is not None:
-        out_path = args.out
-    else:
-        out_path = os.path.dirname(args.audio)
+    if args.out is None:
+        user_data['out_path'] = os.path.dirname(user_data['audio'])
     print("Stage 1/2...")
-    model = BaseModel.from_pretrained(args.model)
-    model.separate(args.audio,
-                resample=True, output_dir=out_path)
+    model = BaseModel.from_pretrained(user_data['model'])
+    model.separate(user_data['audio'],
+                   resample=True, output_dir=user_data['out_path'])
     print("Stage 2/2...")
-    vocal_separate(args.audio)
+    vocal_separate(user_data['audio'])
     print("done.")
