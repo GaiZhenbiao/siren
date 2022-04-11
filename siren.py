@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import PySimpleGUI as sg
 from asteroid.models import BaseModel
+import asteroid.separate as separate
 import numpy as np
 import librosa
 import soundfile as sf
@@ -114,12 +115,12 @@ if not args.nogui:
         elif event == '-RUN-':
             if check_none(user_data['model_path'], "请指定模型文件！") and check_none(user_data['audio_path'], "请指定音频文件！") and check_none(user_data['audio_path'], "请指定输出路径！"):
                 button = window['-RUN-']
-                button.update(text="处理中(阶段 1/2)……")
+                button.update(text="分离人声中(阶段 1/2)……")
                 button.update(disabled=True)
                 window.refresh()
                 seperate_vocal(
                     user_data['model_path'], user_data['audio_path'], user_data['out_path'])
-                button.update(text="处理中(阶段 2/2)……")
+                button.update(text="分离噪声中(阶段 2/2)……")
                 window.refresh()
                 seperate_foreground_and_background(
                     user_data['audio_path'], user_data['out_path'])
@@ -128,9 +129,9 @@ if not args.nogui:
                 button.update(disabled=False)
     window.close()
 else:
-    print("阶段 1/2...")
+    print("分离人声中(阶段 1/2)……")
     seperate_vocal(user_data['model_path'],
                    user_data['audio_path'], user_data['out_path'])
-    print("阶段 2/2...")
+    print("分离噪声中(阶段 2/2)……")
     seperate_foreground_and_background(user_data['audio_path'], user_data['out_path'])
-    print("done.")
+    print("完成")
