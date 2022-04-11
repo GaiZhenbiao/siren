@@ -5,6 +5,8 @@
 
 ## 命令行参数
 
+![Command line screen shot](screenshot2.png)
+
 - nogui 设置后不使用图形界面，下列参数才有效。
 - audio 需要分离的音频文件的路径
 - model 模型文件路径
