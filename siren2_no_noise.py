@@ -29,34 +29,6 @@ def seperate_vocal(model_path, audio_path, out_path):
                    resample=True, output_dir=out_path)
 
 
-def seperate_foreground_and_background(audio_path, out_path):
-    y, sr = librosa.load(audio_path)
-    S_full, phase = librosa.magphase(librosa.stft(y))
-    S_filter = librosa.decompose.nn_filter(S_full,
-                                           aggregate=np.median,
-                                           metric='cosine',
-                                           width=int(librosa.time_to_frames(2, sr=sr)))
-    S_filter = np.minimum(S_full, S_filter)
-    margin_i, margin_v = 2, 10
-    power = 2
-
-    mask_i = librosa.util.softmask(S_filter,
-                                   margin_i * (S_full - S_filter),
-                                   power=power)
-
-    mask_v = librosa.util.softmask(S_full - S_filter,
-                                   margin_v * S_filter,
-                                   power=power)
-    S_foreground = mask_v * S_full
-    S_background = mask_i * S_full
-    D_foreground = S_foreground * phase
-    y_foreground = librosa.istft(D_foreground)
-    D_background = S_background * phase
-    y_background = librosa.istft(D_background)
-    sf.write(f"{out_path}/background.wav", y_background, sr, subtype='PCM_24')
-    sf.write(f"{out_path}/foreground.wav", y_foreground, sr, subtype='PCM_24')
-
-
 MODEL_PATH = "ConvTasNet_Libri2Mix_sepnoisy_16k.bin"
 
 
@@ -135,8 +107,8 @@ class App(tk.Frame):
                 MODEL_PATH, audio, outdir)
             self.process_bthtext.set("分离噪声中(阶段 2/2)……")
             tk.Tk.update(self=self)
-            seperate_foreground_and_background(
-                audio, outdir)
+            # seperate_foreground_and_background(
+            #     audio, outdir)
             self.process_bthtext.set(self.process_prompt)
             self.process_btn["state"] = tk.ACTIVE
             tk.Tk.update(self=self)
@@ -154,5 +126,5 @@ else:
     print("分离人声中(阶段 1/2)……")
     seperate_vocal(MODEL_PATH, args.audio, args.out)
     print("分离噪声中(阶段 2/2)……")
-    seperate_foreground_and_background(args.audio, args.out)
+    # seperate_foreground_and_background(args.audio, args.out)
     print("完成")
